@@ -36,15 +36,6 @@ public class ListarCompras extends AppCompatActivity {
 
 		final LinearLayout lista = findViewById(R.id.lista);
 
-		/* final String[] columns = {
-			"ID",
-			"Data da compra",
-			"Valor total da compra",
-			"Data final para o pagamento",
-			"Nome do cliente",
-			"Logradouro",
-		}; */
-
 		final ColumnInfo[] columns = new ColumnInfo[]{
 			new ColumnInfo("id", "ID"),
 			new ColumnInfo("data", "Data da compra"),
@@ -149,4 +140,3 @@ public class ListarCompras extends AppCompatActivity {
 		}
 	}
 }
-
