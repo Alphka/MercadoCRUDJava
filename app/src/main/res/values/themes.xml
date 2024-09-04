@@ -1,0 +1,4 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<style name="Base.Theme.Mercado" parent="Theme.Material3.Light" />
+	<style name="Theme.Mercado" parent="Base.Theme.Mercado" />
+</resources>

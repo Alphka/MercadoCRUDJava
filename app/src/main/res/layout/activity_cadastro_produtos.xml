@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true"
+	tools:context=".CadastroProdutos"
+>
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+	>
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="40dp"
+			android:text="Cadastro de produtos"
+			android:textSize="30sp"
+			android:textAlignment="center"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+		/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="20dp"
+			android:orientation="vertical"
+			android:gravity="center_horizontal"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/title"
+		>
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:layout_marginStart="20dp"
+				android:layout_marginEnd="20dp"
+			>
+				<EditText
+					android:id="@+id/inputId"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:layout_height="wrap_content"
+					android:hint="ID"
+					android:digits="0123456789"
+					android:inputType="number"
+					android:autofillHints="name"
+				/>
+
+				<Button
+					android:id="@+id/buscarProduto"
+					android:layout_width="140dp"
+					android:layout_height="wrap_content"
+					android:padding="0dp"
+					android:text="Buscar produto"
+					android:layout_marginStart="20dp"
+				/>
+
+				<Button
+					android:id="@+id/excluirProduto"
+					android:layout_width="140dp"
+					android:layout_height="wrap_content"
+					android:padding="0dp"
+					android:text="Excluir produto"
+					android:layout_marginStart="8dp"
+					android:visibility="invisible"
+				/>
+			</LinearLayout>
+
+			<EditText
+				android:id="@+id/inputDescricao"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Descrição"
+				android:maxLength="255"
+				android:inputType="text"
+				android:layout_marginTop="8dp"
+				android:layout_marginStart="20dp"
+				android:layout_marginEnd="20dp"
+			/>
+
+			<EditText
+				android:id="@+id/inputUnidade"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Unidade"
+				android:maxLength="255"
+				android:inputType="text"
+				android:layout_marginTop="8dp"
+				android:layout_marginStart="20dp"
+				android:layout_marginEnd="20dp"
+			/>
+
+			<EditText
+				android:id="@+id/inputPreco"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Preço"
+				android:digits="0123456789."
+				android:inputType="numberDecimal"
+				android:layout_marginTop="8dp"
+				android:layout_marginStart="20dp"
+				android:layout_marginEnd="20dp"
+			/>
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center_horizontal"
+				android:layout_marginTop="20dp"
+			>
+				<Button
+					android:id="@+id/salvar"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Salvar"
+				/>
+
+				<Button
+					android:id="@+id/resetar"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Resetar"
+					android:backgroundTint="@android:color/holo_red_dark"
+					android:layout_marginStart="20dp"
+				/>
+			</LinearLayout>
+		</LinearLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
