@@ -1,9 +1,9 @@
 package com.example.mercado;
 
+import static com.example.mercado.Helpers.formatDate;
 import static com.example.mercado.Helpers.formatPrice;
 import static com.example.mercado.Helpers.getInputString;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -13,19 +13,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class ListarCompras extends AppCompatActivity {
 	private static final String TAG = "lista_compras";
 
+	@SuppressLint("DefaultLocale")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -44,13 +42,13 @@ public class ListarCompras extends AppCompatActivity {
 			new ColumnInfo("cliente.nome", "Nome do cliente")
 		};
 
+		final String keysQuery = String.join(", ", Arrays.stream(columns)
+			.map(columnInfo -> columnInfo.key.contains(".") ? columnInfo.key : String.format("compra.%s", columnInfo.key))
+			.toArray(String[]::new)
+		);
+
 		final Cursor cursor = database.rawQuery(
-		"select " +
-			"compra.id, " +
-			"compra.data, " +
-			"compra.valor, " +
-			"compra.data_pagamento, " +
-			"cliente.nome, " +
+			"select " + keysQuery + ", " +
 			"case when compra.data_pagamento is null then true else false end as em_pendencia, " +
 			"case when (" +
 				"compra.data_pagamento is null and " +
@@ -65,9 +63,15 @@ public class ListarCompras extends AppCompatActivity {
 			null
 		);
 
-		final int columnsSize = columns.length;
+		final int columnsSize = columns.length,
+		columIdIndex = Arrays.asList(Arrays.stream(columns)
+			.map(columnInfo -> columnInfo.key)
+			.toArray(String[]::new)
+		).indexOf("id");
 
 		while(cursor.moveToNext()){
+			final String compraId = cursor.getString(columIdIndex);
+
 			final LinearLayout container = new LinearLayout(this);
 
 			container.setOrientation(LinearLayout.VERTICAL);
@@ -108,35 +112,71 @@ public class ListarCompras extends AppCompatActivity {
 
 					columnValue.setText(columnInfo.key.equals("valor")
 						? formatPrice(cursor.getFloat(index))
-							: columnInfo.key.equals("data") || columnInfo.key.equals("data_pagamento")
+							: columnInfo.key.contains("data")
 								? formatDate(value)
 								: getInputString(value)
 					);
-				}catch(Exception error){
+				}catch(final Exception error){
 					throw new RuntimeException(error);
 				}
 
-				rowContainer.addView(columnTitle);
-				rowContainer.addView(columnValue);
-				container.addView(rowContainer);
+				boolean childrenAdded = false;
+
+				if(index == columnsSize - 1){
+					try(final Cursor productsCursor = database.rawQuery(
+						"select produto.descricao, produto.unidade, compra_produto.quantidade " +
+						"from produto " +
+						"join compra_produto on compra_produto.id_produto = produto.id " +
+						"where compra_produto.id_compra = ?",
+						new String[]{ compraId }
+					)){
+						final ArrayList<String> productsList = new ArrayList<>();
+
+						while(productsCursor.moveToNext()){
+							productsList.add(String.format(
+								"%dx %s (%s)",
+								productsCursor.getInt(2),
+								productsCursor.getString(0),
+								productsCursor.getString(1)
+							));
+						}
+
+						if(productsList.size() > 0){
+							final LinearLayout productRowContainer = new LinearLayout(this);
+
+							productRowContainer.setOrientation(LinearLayout.HORIZONTAL);
+							productRowContainer.setPadding(0, 0, 0, 4);
+
+							final TextView productsRowTitle = new TextView(this),
+							productsRowValue = new TextView(this);
+
+							productsRowTitle.setTypeface(null, Typeface.BOLD);
+							productsRowTitle.setText("Produtos: ");
+
+							productsRowValue.setText(String.join(", ", productsList));
+
+							rowContainer.addView(columnTitle);
+							rowContainer.addView(columnValue);
+							productRowContainer.addView(productsRowTitle);
+							productRowContainer.addView(productsRowValue);
+							container.addView(rowContainer);
+							container.addView(productRowContainer);
+
+							childrenAdded = true;
+						}
+					}
+				}
+
+				if(!childrenAdded){
+					rowContainer.addView(columnTitle);
+					rowContainer.addView(columnValue);
+					container.addView(rowContainer);
+				}
 			}
 
 			lista.addView(container);
 		}
 
 		cursor.close();
-	}
-	@SuppressLint("DefaultLocale")
-	@NonNull
-	private String formatDate(@NonNull final String date){
-		try{
-			final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-			dateFormat.setLenient(false);
-			return DateFormat.getDateInstance(DateFormat.SHORT, new Locale("pt", "BR"))
-				.format(Objects.requireNonNull(dateFormat.parse(date)));
-		}catch(ParseException error){
-			Log.e(TAG, Objects.requireNonNull(error.getMessage()));
-			return "";
-		}
 	}
 }

@@ -127,7 +127,7 @@ public class ListarClientes extends AppCompatActivity {
 							? formatCep(value)
 							: getInputString(value)
 					);
-				}catch(Exception error){
+				}catch(final Exception error){
 					throw new RuntimeException(error);
 				}
 

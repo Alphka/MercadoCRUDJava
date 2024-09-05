@@ -93,7 +93,7 @@ public class CRUDProduto extends AppCompatActivity {
 
 			try{
 				produtoId = String.valueOf(Integer.parseInt(idText));
-			}catch(Exception error){
+			}catch(final Exception error){
 				Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 				return;
 			}
@@ -145,7 +145,7 @@ public class CRUDProduto extends AppCompatActivity {
 
 			try{
 				 quantidade = getQuantity();
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputQuantidade.setError(error.getMessage());
 				return;
 			}
@@ -173,7 +173,7 @@ public class CRUDProduto extends AppCompatActivity {
 
 			try{
 				 quantidade = getQuantity();
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputQuantidade.setError(error.getMessage());
 				return;
 			}
@@ -233,7 +233,7 @@ public class CRUDProduto extends AppCompatActivity {
 			quantidadeInt = Integer.parseInt(quantidade);
 
 			if(quantidadeInt == 0) throw new Exception("A quantidade deve ser maior que 0");
-		}catch(Exception error){
+		}catch(final Exception error){
 			throw new Exception("Valor inválido para a quantidade de produtos");
 		}
 
@@ -241,7 +241,7 @@ public class CRUDProduto extends AppCompatActivity {
 	}
 	private boolean hasProduct(){
 		try(final Cursor compraCursor = database.rawQuery(
-		"select 1 from compra " +
+			"select 1 from compra " +
 			"join compra_produto on compra_produto.id_compra = compra.id " +
 			"where compra.id = ? and id_produto = ? " +
 			"limit 1",
@@ -265,7 +265,7 @@ public class CRUDProduto extends AppCompatActivity {
 		priceCursor.close();
 
 		database.execSQL(
-		"update compra " +
+			"update compra " +
 			"set valor = ?" +
 			"where compra.id = ?",
 			new String[]{ String.valueOf(price), compraId }

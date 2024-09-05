@@ -110,7 +110,7 @@ public class CadastroClientes extends AppCompatActivity {
 					inputDiaPagamento.setError("O dia de pagamento deve ser maior que zero e menor ou igual a 31");
 					return;
 				}
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputDiaPagamento.setError("Valor inválido para o dia de pagamento");
 			}
 
@@ -123,7 +123,7 @@ public class CadastroClientes extends AppCompatActivity {
 						inputNumero.setError("O número da casa deve ser um número inteiro maior que zero");
 						return;
 					}
-				}catch(Exception error){
+				}catch(final Exception error){
 					inputNumero.setError("Valor inválido para o número da casa");
 					return;
 				}
@@ -183,22 +183,22 @@ public class CadastroClientes extends AppCompatActivity {
 
 			try{
 				userId = String.valueOf(Integer.parseInt(idText));
-			}catch(Exception error){
+			}catch(final Exception error){
 				Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 				return;
 			}
 
 			final Cursor cursor = database.rawQuery(
 				"select nome, email, telefone, dia_pagamento, logradouro, numero, complemento, bairro, cidade, estado, cep, " +
-					"case when exists (" +
-						"select 1 " +
-						"from compra " +
-						"where compra.id_cliente = cliente.id " +
-						"limit 1" +
-					") then true else false end as possui_compra " +
-					"from cliente " +
-					"where id = ? " +
-					"limit 1",
+				"case when exists (" +
+					"select 1 " +
+					"from compra " +
+					"where compra.id_cliente = cliente.id " +
+					"limit 1" +
+				") then true else false end as possui_compra " +
+				"from cliente " +
+				"where id = ? " +
+				"limit 1",
 				new String[]{ userId }
 			);
 

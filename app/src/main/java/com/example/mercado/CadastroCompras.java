@@ -95,7 +95,7 @@ public class CadastroCompras extends AppCompatActivity {
 
 			try{
 				validarDataCompra(data);
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputData.setError(error.getMessage());
 				return;
 			}
@@ -138,13 +138,13 @@ public class CadastroCompras extends AppCompatActivity {
 
 			try{
 				compraId = String.valueOf(Integer.parseInt(idText));
-			}catch(Exception error){
+			}catch(final Exception error){
 				Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 				return;
 			}
 
 			final Cursor cursor = database.rawQuery(
-			"select data, id_cliente, cliente.nome as nome_cliente, dia_pagamento " +
+				"select data, id_cliente, cliente.nome as nome_cliente, dia_pagamento " +
 				"from compra " +
 				"join cliente on cliente.id = id_cliente " +
 				"where compra.id = ?",
@@ -173,7 +173,7 @@ public class CadastroCompras extends AppCompatActivity {
 
 			try{
 				validarDataCompra(data);
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputData.setError(error.getMessage());
 				return;
 			}
@@ -187,7 +187,7 @@ public class CadastroCompras extends AppCompatActivity {
 
 			try{
 				clienteId = String.valueOf(Integer.parseInt(idCliente));
-			}catch(Exception error){
+			}catch(final Exception error){
 				Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 				return;
 			}
@@ -253,7 +253,7 @@ public class CadastroCompras extends AppCompatActivity {
 			calendar.setTime(dateFormat.parse(dataCompra));
 			calendar.set(Calendar.DAY_OF_MONTH, clienteDiaPagamento);
 			calendar.add(Calendar.MONTH, 1);
-		}catch(Exception error){
+		}catch(final Exception error){
 			throw new RuntimeException(error);
 		}
 
@@ -277,7 +277,7 @@ public class CadastroCompras extends AppCompatActivity {
 		listaProdutos.removeAllViews();
 
 		final Cursor produtosCursor = database.rawQuery(
-		"select produto.id, produto.descricao, compra_produto.quantidade, produto.preco " +
+			"select produto.id, produto.descricao, compra_produto.quantidade, produto.preco " +
 			"from produto " +
 			"join compra_produto on compra_produto.id_produto = produto.id " +
 			"where compra_produto.id_compra = ? " +

@@ -1,6 +1,9 @@
 package com.example.mercado;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -40,7 +43,7 @@ public class Helpers {
 			formattedPhoneNumber.append(phoneNumber.substring(index));
 
 			return formattedPhoneNumber.toString();
-		}catch(Exception error){
+		}catch(final Exception error){
 			Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 			return phoneNumber;
 		}
@@ -54,6 +57,7 @@ public class Helpers {
 	public static String formatPrice(final float price){
 		if(Objects.isNull(price)) return "";
 
+		@SuppressWarnings("deprecation")
 		final Locale locale = new Locale("pt", "BR");
 		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(locale);
 
@@ -65,8 +69,26 @@ public class Helpers {
 			dateFormat.setLenient(false);
 			Objects.requireNonNull(dateFormat.parse(date));
 			return true;
-		}catch(ParseException error){
+		}catch(final ParseException error){
 			return false;
+		}
+	}
+	@NonNull
+	public static String formatDate(@NonNull final String date) throws NullPointerException {
+		try{
+			@SuppressLint("DefaultLocale")
+			final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+			dateFormat.setLenient(false);
+
+			@SuppressWarnings("deprecation")
+			final Locale locale = new Locale("pt", "BR");
+
+			return DateFormat.getDateInstance(DateFormat.SHORT, locale)
+				.format(Objects.requireNonNull(dateFormat.parse(date)));
+		}catch(final ParseException error){
+			Log.e(TAG, Objects.requireNonNull(error.getMessage()));
+			return "";
 		}
 	}
 }

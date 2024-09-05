@@ -72,7 +72,7 @@ public class ListarProdutos extends AppCompatActivity {
 						? formatPrice(cursor.getFloat(index))
 						: getInputString(value)
 					);
-				}catch(Exception error){
+				}catch(final Exception error){
 					throw new RuntimeException(error);
 				}
 

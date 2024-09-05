@@ -79,7 +79,7 @@ public class CadastroProdutos extends AppCompatActivity {
 					inputPreco.setError("O preço deve ser maior que zero");
 					return;
 				}
-			}catch(Exception error){
+			}catch(final Exception error){
 				inputPreco.setError("Valor inválido para o preço");
 			}
 
@@ -119,13 +119,13 @@ public class CadastroProdutos extends AppCompatActivity {
 
 			try{
 				productId = String.valueOf(Integer.parseInt(idText));
-			}catch(Exception error){
+			}catch(final Exception error){
 				Log.e(TAG, Objects.requireNonNull(error.getMessage()));
 				return;
 			}
 
 			final Cursor cursor = database.rawQuery(
-			"select descricao, unidade, preco, " +
+				"select descricao, unidade, preco, " +
 				"case when exists (" +
 					"select 1 " +
 					"from compra " +
