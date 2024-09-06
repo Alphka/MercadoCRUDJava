@@ -22,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.DateFormat;
@@ -64,6 +63,7 @@ public class CadastroCompras extends AppCompatActivity {
 
 	private CharSequence salvarDefaultText;
 
+	@SuppressLint("DefaultLocale")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,8 +101,14 @@ public class CadastroCompras extends AppCompatActivity {
 			}
 
 			final ContentValues compraInfo = new ContentValues();
+			final String[] dataParts = data.split("-", 3);
 
-			compraInfo.put("data", formatDate(data));
+			compraInfo.put("data", String.format(
+				"%04d-%02d-%02d",
+				Integer.parseInt(dataParts[2]),
+				Integer.parseInt(dataParts[1]),
+				Integer.parseInt(dataParts[0])
+			));
 
 			if(isEditar){
 				database.update(
@@ -157,7 +163,9 @@ public class CadastroCompras extends AppCompatActivity {
 				return;
 			}
 
-			inputData.setText(getInputString(cursor.getString(0)));
+			final String data = cursor.getString(0);
+
+			inputData.setText(Objects.isNull(data) ? "" : String.join("/", data.split("-")));
 			inputIdCliente.setText(getInputString(cursor.getString(1)));
 
 			clienteNome = cursor.getString(2);
@@ -365,7 +373,7 @@ public class CadastroCompras extends AppCompatActivity {
 		quantityText.setText(String.valueOf(quantity));
 		quantityText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 
-		valueTitle.setText("Quantidade: ");
+		valueTitle.setText("Preço: ");
 		valueTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 
 		valueText.setText(formatPrice(quantity * price));
@@ -385,12 +393,6 @@ public class CadastroCompras extends AppCompatActivity {
 		container.addView(quantityRow);
 		container.addView(valueRow);
 		listaProdutos.addView(container);
-	}
-	@NonNull
-	@SuppressLint("DefaultLocale")
-	private String formatDate(@NonNull final String date){
-		final String[] parts = date.split("-", 3);
-		return String.format("%04d-%02d-%02d", parts[2], parts[1], parts[0]);
 	}
 	private void resetForm(){
 		isEditar = false;
