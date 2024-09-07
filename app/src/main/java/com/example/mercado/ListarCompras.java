@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,31 +22,68 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class ListarCompras extends AppCompatActivity {
-	private static final String TAG = "lista_compras";
+	SQLiteDatabase database;
 
-	@SuppressLint("DefaultLocale")
+	LinearLayout lista;
+
+	final ColumnInfo[] columns = new ColumnInfo[]{
+		new ColumnInfo("id", "ID"),
+		new ColumnInfo("data", "Data da compra"),
+		new ColumnInfo("valor", "Valor total da compra"),
+		new ColumnInfo("data_pagamento", "Data final para o pagamento"),
+		new ColumnInfo("cliente.nome", "Nome do cliente")
+	};
+
+	final String keysQuery = String.join(", ", Arrays.stream(columns)
+		.map(columnInfo -> columnInfo.key.contains(".") ? columnInfo.key : String.format("compra.%s", columnInfo.key))
+		.toArray(String[]::new)
+	);
+
+	final int columnsSize = columns.length,
+	columIdIndex = Arrays.asList(Arrays.stream(columns)
+		.map(columnInfo -> columnInfo.key)
+		.toArray(String[]::new)
+	).indexOf("id");
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final SQLiteDatabase database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
+		database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
 
 		setContentView(R.layout.activity_listar_compras);
 
-		final LinearLayout lista = findViewById(R.id.lista);
+		lista = findViewById(R.id.lista);
 
-		final ColumnInfo[] columns = new ColumnInfo[]{
-			new ColumnInfo("id", "ID"),
-			new ColumnInfo("data", "Data da compra"),
-			new ColumnInfo("valor", "Valor total da compra"),
-			new ColumnInfo("data_pagamento", "Data final para o pagamento"),
-			new ColumnInfo("cliente.nome", "Nome do cliente")
-		};
+		final SearchView searchInput = findViewById(R.id.searchInput);
 
-		final String keysQuery = String.join(", ", Arrays.stream(columns)
-			.map(columnInfo -> columnInfo.key.contains(".") ? columnInfo.key : String.format("compra.%s", columnInfo.key))
-			.toArray(String[]::new)
-		);
+		searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+			@Override
+			public boolean onQueryTextSubmit(final String query){
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(final String newText){
+				if(newText.isEmpty()){
+					renderList(null);
+					return true;
+				}
+
+				renderList(String.format("%%%s%%", newText));
+				return true;
+			}
+		});
+
+		renderList(null);
+	}
+	@SuppressLint("DefaultLocale")
+	private void renderList(final String searchQuery){
+		if(lista.getChildCount() > 0){
+			lista.removeAllViews();
+		}
+
+		final boolean hasSearch = !Objects.isNull(searchQuery);
 
 		final Cursor cursor = database.rawQuery(
 			"select " + keysQuery + ", " +
@@ -59,15 +97,15 @@ public class ListarCompras extends AppCompatActivity {
 			") then true else false end as em_debito " +
 			"from compra " +
 			"join cliente on cliente.id = compra.id_cliente " +
+			(hasSearch ? (
+				"left join compra_produto on compra.id = compra_produto.id_compra " +
+				"left join produto on compra_produto.id_produto = produto.id " +
+				"where cliente.nome like ? or produto.descricao like ? or produto.unidade like ? " +
+				"group by compra.id "
+			) : "") +
 			"order by cliente.id asc",
-			null
+			hasSearch ? new String[]{ searchQuery, searchQuery, searchQuery } : null
 		);
-
-		final int columnsSize = columns.length,
-		columIdIndex = Arrays.asList(Arrays.stream(columns)
-			.map(columnInfo -> columnInfo.key)
-			.toArray(String[]::new)
-		).indexOf("id");
 
 		while(cursor.moveToNext()){
 			final String compraId = cursor.getString(columIdIndex);

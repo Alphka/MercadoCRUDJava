@@ -16,9 +16,11 @@ public class Helpers {
 	private static final String TAG = "helpers";
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 
+	@NonNull
 	public static String getInputString(final String value){
 		return Objects.isNull(value) ? "" : value;
 	}
+	@NonNull
 	public static String formatPhoneNumber(String phoneNumber){
 		phoneNumber = getInputString(phoneNumber);
 
@@ -48,12 +50,14 @@ public class Helpers {
 			return phoneNumber;
 		}
 	}
+	@NonNull
 	public static String formatCep(String cep){
 		cep = getInputString(cep);
 
 		if(cep.isEmpty()) return cep;
 		return String.format("%s-%s", cep.substring(0, 5), cep.substring(5));
 	}
+	@NonNull
 	public static String formatPrice(final float price){
 		if(Objects.isNull(price)) return "";
 
