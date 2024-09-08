@@ -78,7 +78,9 @@ public class Helpers {
 		}
 	}
 	@NonNull
-	public static String formatDate(@NonNull final String date) throws NullPointerException {
+	public static String formatDate(final String date) throws NullPointerException {
+		if(Objects.isNull(date) || date.isEmpty()) return "";
+
 		try{
 			@SuppressLint("DefaultLocale")
 			final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());

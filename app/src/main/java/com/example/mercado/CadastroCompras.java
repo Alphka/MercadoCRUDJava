@@ -1,6 +1,7 @@
 package com.example.mercado;
 
 import static com.example.mercado.Helpers.DATE_FORMAT;
+import static com.example.mercado.Helpers.formatDate;
 import static com.example.mercado.Helpers.formatPrice;
 import static com.example.mercado.Helpers.getInputString;
 import static com.example.mercado.Helpers.isValidDate;
@@ -101,7 +102,7 @@ public class CadastroCompras extends AppCompatActivity {
 			}
 
 			final ContentValues compraInfo = new ContentValues();
-			final String[] dataParts = data.split("-", 3);
+			final String[] dataParts = data.split("/", 3);
 
 			compraInfo.put("data", String.format(
 				"%04d-%02d-%02d",
@@ -163,9 +164,7 @@ public class CadastroCompras extends AppCompatActivity {
 				return;
 			}
 
-			final String data = cursor.getString(0);
-
-			inputData.setText(Objects.isNull(data) ? "" : String.join("/", data.split("-")));
+			inputData.setText(formatDate(cursor.getString(0)));
 			inputIdCliente.setText(getInputString(cursor.getString(1)));
 
 			clienteNome = cursor.getString(2);
