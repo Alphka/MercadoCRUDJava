@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,31 +18,67 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class ListarProdutos extends AppCompatActivity {
+	SQLiteDatabase database;
+
+	LinearLayout lista;
+
+	final ColumnInfo[] columns = new ColumnInfo[]{
+		new ColumnInfo("id", "ID"),
+		new ColumnInfo("descricao", "Descrição"),
+		new ColumnInfo("unidade", "Unidade"),
+		new ColumnInfo("preco", "Preço")
+	};
+
+	final String keysQuery = String.join(", ", Arrays.stream(columns).map(columnInfo -> columnInfo.key).toArray(String[]::new));
+
+	final int columnsSize = columns.length;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final SQLiteDatabase database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
+		database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
 
 		setContentView(R.layout.activity_listar_produtos);
 
-		final LinearLayout lista = findViewById(R.id.lista);
+		lista = findViewById(R.id.lista);
 
-		final ColumnInfo[] columns = new ColumnInfo[]{
-			new ColumnInfo("id", "ID"),
-			new ColumnInfo("descricao", "Descrição"),
-			new ColumnInfo("unidade", "Unidade"),
-			new ColumnInfo("preco", "Preço")
-		};
+		final SearchView searchInput = findViewById(R.id.searchInput);
+
+		searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(final String query) {
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(final String newText) {
+				if(newText.isEmpty()){
+					renderList(null);
+					return true;
+				}
+
+				renderList(String.format("%%%s%%", newText));
+				return true;
+			}
+		});
+
+		renderList(null);
+	}
+	private void renderList(final String searchQuery){
+		if(lista.getChildCount() > 0){
+			lista.removeAllViews();
+		}
+
+		final boolean hasSearch = !Objects.isNull(searchQuery);
 
 		final Cursor cursor = database.rawQuery(
-			"select " + String.join(", ", Arrays.stream(columns).map(columnInfo -> columnInfo.key).toArray(String[]::new)) + " " +
+			"select " + keysQuery + " " +
 			"from produto " +
+			(hasSearch ? ("where produto.descricao like ? or produto.unidade like ? ") : "") +
 			"order by id asc",
-			null
+			hasSearch ? new String[]{ searchQuery, searchQuery } : null
 		);
-
-		final int columnsSize = columns.length;
 
 		while(cursor.moveToNext()){
 			final LinearLayout container = new LinearLayout(this);

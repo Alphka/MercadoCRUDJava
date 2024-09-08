@@ -15,42 +15,78 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Objects;
 
 public class ListarClientes extends AppCompatActivity {
+	SQLiteDatabase database;
+
+	LinearLayout lista;
+
+	final ColumnInfo[] columns = new ColumnInfo[]{
+		new ColumnInfo("id", "ID"),
+		new ColumnInfo("nome", "Nome"),
+		new ColumnInfo("email", "Email"),
+		new ColumnInfo("telefone", "Telefone"),
+		new ColumnInfo("dia_pagamento", "Dia de Pagamento"),
+		new ColumnInfo("logradouro", "Logradouro"),
+		new ColumnInfo("numero", "Número"),
+		new ColumnInfo("complemento", "Complemento"),
+		new ColumnInfo("bairro", "Bairro"),
+		new ColumnInfo("cidade", "Cidade"),
+		new ColumnInfo("estado", "Estado"),
+		new ColumnInfo("cep", "CEP")
+	};
+
+	final String keysQuery = String.join(", ", Arrays.stream(columns)
+		.map(columnInfo -> String.format("cliente.%s", columnInfo.key))
+		.toArray(String[]::new)
+	);
+
+	final int columnsSize = columns.length;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		final SQLiteDatabase database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
+		database = openOrCreateDatabase("Mercado", Context.MODE_PRIVATE, null);
 
 		setContentView(R.layout.activity_listar_clientes);
 
-		final LinearLayout lista = findViewById(R.id.lista);
+		lista = findViewById(R.id.lista);
 
-		final ColumnInfo[] columns = new ColumnInfo[]{
-			new ColumnInfo("id", "ID"),
-			new ColumnInfo("nome", "Nome"),
-			new ColumnInfo("email", "Email"),
-			new ColumnInfo("telefone", "Telefone"),
-			new ColumnInfo("dia_pagamento", "Dia de Pagamento"),
-			new ColumnInfo("logradouro", "Logradouro"),
-			new ColumnInfo("numero", "Número"),
-			new ColumnInfo("complemento", "Complemento"),
-			new ColumnInfo("bairro", "Bairro"),
-			new ColumnInfo("cidade", "Cidade"),
-			new ColumnInfo("estado", "Estado"),
-			new ColumnInfo("cep", "CEP")
-		};
+		final SearchView searchInput = findViewById(R.id.searchInput);
 
-		final String keysQuery = String.join(", ", Arrays.stream(columns)
-			.map(columnInfo -> String.format("cliente.%s", columnInfo.key))
-			.toArray(String[]::new)
-		);
+		searchInput.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+			@Override
+			public boolean onQueryTextSubmit(final String query){
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(final String newText){
+				if(newText.isEmpty()){
+					renderList(null);
+					return true;
+				}
+
+				renderList(String.format("%%%s%%", newText));
+				return true;
+			}
+		});
+
+		renderList(null);
+	}
+	@SuppressLint("DefaultLocale")
+	private void renderList(final String searchQuery){
+		if(lista.getChildCount() > 0){
+			lista.removeAllViews();
+		}
+
+		final boolean hasSearch = !Objects.isNull(searchQuery);
 
 		final Cursor cursor = database.rawQuery(
 			"select " + keysQuery + ", " +
@@ -75,11 +111,10 @@ public class ListarClientes extends AppCompatActivity {
 					")" +
 			") then true else false end as em_debito " +
 			"from cliente " +
+			(hasSearch ? ("where cliente.nome like ? ") : "") +
 			"order by cliente.id asc",
-			null
+			hasSearch ? new String[]{ searchQuery } : null
 		);
-
-		final int columnsSize = columns.length;
 
 		while(cursor.moveToNext()){
 			final LinearLayout container = new LinearLayout(this);
