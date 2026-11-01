@@ -112,6 +112,7 @@ public class CadastroClientes extends AppCompatActivity {
 				}
 			}catch(final Exception error){
 				inputDiaPagamento.setError("Valor inválido para o dia de pagamento");
+				return;
 			}
 
 			int numeroInt = 0;
